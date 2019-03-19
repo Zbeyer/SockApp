@@ -1,0 +1,6 @@
+
+# github "mxcl/PromiseKit" "4.5.2"
+# github "Alamofire/Alamofire" "4.8.0"
+
+# https://github.com/socketio/socket.io-client-swift
+github "socketio/socket.io-client-swift" ~> 14.0.0

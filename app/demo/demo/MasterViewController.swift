@@ -9,12 +9,10 @@
 import UIKit
 import SocketIO
 
-
 class MasterViewController: UITableViewController {
 
     var detailViewController: DetailViewController? = nil
     var objects = [Any]()
-
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,8 +23,14 @@ class MasterViewController: UITableViewController {
         navigationItem.rightBarButtonItem = addButton
         if let split = splitViewController {
             let controllers = split.viewControllers
-            detailViewController = (controllers[controllers.count-1] as! UINavigationController).topViewController as? DetailViewController
+            guard let detailViewController = (controllers[controllers.count-1] as? UINavigationController)?.topViewController as? DetailViewController else {
+                return
+            }
+
+            print(detailViewController)
         }
+
+        SocketIOManager.shared.connectSocket()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -46,11 +50,12 @@ class MasterViewController: UITableViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "showDetail" {
             if let indexPath = tableView.indexPathForSelectedRow {
-                let object = objects[indexPath.row] as! NSDate
-                let controller = (segue.destination as! UINavigationController).topViewController as! DetailViewController
-                controller.detailItem = object
-                controller.navigationItem.leftBarButtonItem = splitViewController?.displayModeButtonItem
-                controller.navigationItem.leftItemsSupplementBackButton = true
+                if let object = objects[indexPath.row] as? NSDate,
+                    let controller = (segue.destination as? UINavigationController)?.topViewController as? DetailViewController {
+                    controller.detailItem = object
+                    controller.navigationItem.leftBarButtonItem = splitViewController?.displayModeButtonItem
+                    controller.navigationItem.leftItemsSupplementBackButton = true
+                }
             }
         }
     }
@@ -68,8 +73,10 @@ class MasterViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
 
-        let object = objects[indexPath.row] as! NSDate
-        cell.textLabel!.text = object.description
+        if let object = objects[indexPath.row] as? NSDate {
+            cell.textLabel!.text = object.description
+        }
+
         return cell
     }
 
@@ -87,6 +94,4 @@ class MasterViewController: UITableViewController {
         }
     }
 
-
 }
-
